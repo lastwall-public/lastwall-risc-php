@@ -45,17 +45,14 @@ class Risc
 	 * @param string $email    The user's email address
 	 * @param string $phone    The user's phone number
 	 * @param string $name     Optional: the user's name for display
-	 * @param string $activate Optional: if true, begin account activation immediately (default: true)
 	 *
 	 * @return RiscResponse the server response
 	 */
-	public static function CreateUser($user_id, $email, $phone, $name = null, $activate = null)
+	public static function CreateUser($user_id, $email, $phone, $name = null)
 	{
 		$obj = (object) array("user_id" => $user_id, "email" => $email, "phone" => $phone);
 		if (isset($name))
 			$obj->name = $name;
-		if (isset($activate))
-			$obj->activate = $activate ? "true" : "false";
 		return self::CallAPI("POST", self::$api_url . "/users", $obj);
 	}
 
@@ -79,11 +76,10 @@ class Risc
 	 * @param string $email    Optional: the user's new email address
 	 * @param string $phone    Optional: the user's new phone number
 	 * @param string $name     Optional: the user's new name for display
-	 * @param string $activate Optional: if true, begin account activation immediately (default: true)
 	 *
 	 * @return RiscResponse the server response
 	 */
-	public static function ModifyUser($user_id, $email = null, $phone = null, $name = null, $activate = null)
+	public static function ModifyUser($user_id, $email = null, $phone = null, $name = null)
 	{
 		$obj = (object) array("user_id" => $user_id);
 		if (isset($email))
@@ -92,8 +88,6 @@ class Risc
 			$obj->phone = $phone;
 		if (isset($name))
 			$obj->name = $name;
-		if (isset($activate))
-			$obj->activate = $activate ? "true" : "false";
 		return self::CallAPI("PUT", self::$api_url . "/users", $obj);
 	}
 
@@ -111,34 +105,15 @@ class Risc
 	}
 
 	/**
-	 * Begin the activation process for a user account.
-	 *
-	 * @param string $user_id  The user account ID
-	 * @param string $activate Optional: if false, will immediately deactivate the account (default: true)
-	 *
-	 * @return RiscResponse the server response
-	 */
-	public static function ActivateUser($user_id, $activate = null)
-	{
-		$obj = (object) array("user_id" => $user_id);
-		if (isset($activate))
-			$obj->activate = $activate ? "true" : "false";
-		return self::CallAPI("POST", self::$api_url . "/activate", $obj);
-	}
-
-	/**
 	 * Create a new session for a given user.
 	 *
 	 * @param string $user_id    The user account ID
-	 * @param string $force_call Optional: Forces a bypass of the risk-based policy engine and ensures that a verification call occurs. (default: false)
 	 *
 	 * @return RiscResponse the server response
 	 */
-	public static function CreateSession($user_id, $force_call = null)
+	public static function CreateSession($user_id)
 	{
 		$obj = (object) array("user_id" => $user_id);
-		if (isset($force_call))
-			$obj->force_call = $force_call ? "true" : "false";
 		return self::CallAPI("POST", self::$api_url . "/sessions", $obj);
 	}
 
