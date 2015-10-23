@@ -9,10 +9,11 @@ Integration with Lastwall RISC is a fairly straightforward process. The interact
 
 1. The end user performs an action on your website that requires risk analysis, for example a login attempt (the most common use).
 2. Your server receives the login request, and before responding to it, creates a Lastwall RISC session via a POST to `https://risc.lastwall.com/api/sessions`. The response from Lastwall will include a session URL pointing to a Lastwall-hosted javascript.
-3. Your server returns a response to the user's login attempt that includes this javascript URL. How this URL is transmitted to the client browser is up to you. In the Node.js example below, the user is redirected to a new page called 'loginRisc' the URL is passed through an EJS template.
+3. Your server returns a response to the user's login attempt that includes this javascript URL. How this URL is transmitted to the client browser is up to you. In the Node.js example below, the user is redirected to a new page called 'loginRisc', where the URL is passed through an EJS template.
 4. The user's browser should take this javascript URL and load it via asynchronous HTTPRequest (sample code supplied below - see `initLastwallRisc()`).
 5. When the script is completed and the risk score is evaluated, the client browser will trigger a finalization function call to `lastwallRiscFinished()`. You must define this function in the web page. This function should trigger a call back to your server, letting your server know that the RISC session has been completed (eg. using a hidden form submission - sample code supplied below).
 6. Your server checks with Lastwall to see the results of the session via a GET request to `https://risc.lastwall.com/api/sessions`. The response from Lastwall will include a percentage-based risk score, a risk status value (one of 'Risky', 'Authenticated', or 'Failed'), and a boolean value indicating whether the user was authenticated. You can use any of these three metrics to evaluate the risk and take appropriate action (eg. email to administrator, forced logout, limited login, honeypot site, etc).
+7. Lastly, you should update all of your page-access authentication checks to ensure that users have both logged in AND passed a RISC check (example below).
 
 
 ## Sample code
@@ -148,7 +149,7 @@ On RISC completion, do the following (**step 6**):
     }
 ```
 
-Authentication functions in `app.js`. All of the account pages are protected by `ensureAuthenticated()`:
+Authentication functions in `app.js`. All of the account pages are protected by `ensureAuthenticated()` (**step 7**):
 
 ```
     app.get('/account', ensureAuthenticated, account);
