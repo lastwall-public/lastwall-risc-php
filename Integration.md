@@ -1,5 +1,6 @@
 # ![Lastwall Logo](logo.png) Lastwall RISC Integration
-Lastwall RISC authentication engine integration instructions
+
+Lastwall RISC authentication engine integration instructions and sample Node.js implementation. For API docs, please [click here](README.md).
 
 ## Overview
 
