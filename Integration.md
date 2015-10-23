@@ -9,20 +9,54 @@ Integration with Lastwall RISC is a fairly straightforward process. The interact
 
 1. The end user performs an action on your website that requires risk analysis, for example a login attempt (the most common use).
 2. Your server receives the login request, and before responding to it, creates a Lastwall RISC session via a POST to `https://risc.lastwall.com/api/sessions`. The response from Lastwall will include a session URL pointing to a Lastwall-hosted javascript.
-3. Your server returns a response to the user's login attempt that includes this javascript URL. How this URL is transmitted to the client browser is up to you - specifics will vary depending on the platform and language your website is built upon, and your client-server architecture flow.
+3. Your server returns a response to the user's login attempt that includes this javascript URL. How this URL is transmitted to the client browser is up to you. In the Node.js example below, the user is redirected to a new page called 'loginRisc' the URL is passed through an EJS template.
 4. The user's browser should take this javascript URL and load it via asynchronous HTTPRequest (sample code supplied below - see `initLastwallRisc()`).
-5. When the script is completed and the risk score is evaluated, the client browser will trigger a finalization function call to `lastwallRiscFinished()`. You must define this function in the web page, but it can do whatever you like. The only requirement is that the finalization function must trigger a call back to your server, letting your server know that the RISC session has been completed (eg. using a hidden form submission - sample code supplied below).
+5. When the script is completed and the risk score is evaluated, the client browser will trigger a finalization function call to `lastwallRiscFinished()`. You must define this function in the web page. This function should trigger a call back to your server, letting your server know that the RISC session has been completed (eg. using a hidden form submission - sample code supplied below).
 6. Your server checks with Lastwall to see the results of the session via a GET request to `https://risc.lastwall.com/api/sessions`. The response from Lastwall will include a percentage-based risk score, a risk status value (one of 'Risky', 'Authenticated', or 'Failed'), and a boolean value indicating whether the user was authenticated. You can use any of these three metrics to evaluate the risk and take appropriate action (eg. email to administrator, forced logout, limited login, honeypot site, etc).
 
 
 ## Sample code
 
+### Client-side Javascript and EJS
+
+Snippet from `views/loginRisc.ejs` to run the client-side javascript (**step 4**):
+
+```
+    window.onload = function() {
+        initLastwallRisc('<%= lastwall_url %>');  // renders the session URL as a string in quotes, and calls the init function on it
+    }
+```
+
+```
+    var initLastwallRisc = function(url)
+    {
+        var scr = document.createElement('script');
+        scr.setAttribute('async', 'true');
+        scr.type = 'text/javascript';
+        scr.src = url;
+        ((document.getElementsByTagName('head') || [null])[0] ||
+        document.getElementsByTagName('script')[0].parentNode).appendChild(scr);
+    }
+```
+
+Hidden form to submit on RISC completion, also in `views/loginRisc.ejs` (**step 5**):
+
+```
+    var lastwallRiscFinished = function()
+    {
+        document.forms['lw_finished_form'].submit();
+    }
+```
+
+```
+    <form id="lw_finished_form" name="lw_finished_form" action="/finishedRisc" method="post"></form>
+```
 
 ### Server-side Node.js examples
 
-The following snippets show the most important sections of a sample Node.js passport-based authentication site, properly integrated with Lastwall RISC.
+The following snippets show the most important sections of a sample Node.js passport-based authentication site, integrated with Lastwall RISC.
 
-Snippet from `app.js`. After a successful username/password check, a RISC session is created and the user briefly redirected to a RISC handling page:
+Snippet from `app.js`. After a successful username/password check, a RISC session is created and the user briefly redirected to a RISC handling page (**step 2**):
 
 ```
     app.post('/login', passport.authenticate('local', { failureRedirect: '/', failureFlash: true }), createRiscSession);
@@ -49,7 +83,7 @@ Snippet from `app.js`. After a successful username/password check, a RISC sessio
     }
 ```
 
-Another snippet from `app.js`. Loads the followup page after initial login to verify risk before allowing account access:
+Another snippet from `app.js`. Loads the followup page after initial login to run the RISC analysis (**step 3**):
 
 ```
     app.get('/loginRisc', ensureUserPass, loginRisc);
@@ -69,7 +103,7 @@ Another snippet from `app.js`. Loads the followup page after initial login to ve
     };
 ```
 
-On RISC completion, do the following (also in `app.js`):
+On RISC completion, do the following (**step 6**):
 
 ```
     app.post('/finishedRisc', ensureUserPass, finishedRisc);
@@ -135,39 +169,4 @@ Authentication functions in `app.js`. All of the account pages are protected by 
         }
         res.redirect('/login');
     }
-```
-
-### Client-side Javascript and EJS
-
-Snippet from `views/loginRisc.ejs` to run the client-side javascript:
-
-```
-    window.onload = function() {
-        initLastwallRisc('<%= lastwall_url %>');  // renders the session URL as a string in quotes, and calls the init function on it
-    }; 
-```
-
-```
-    var initLastwallRisc = function(url)
-    {
-        var scr = document.createElement('script');
-        scr.setAttribute('async', 'true');
-        scr.type = 'text/javascript';
-        scr.src = url;
-        ((document.getElementsByTagName('head') || [null])[0] ||
-        document.getElementsByTagName('script')[0].parentNode).appendChild(scr);
-    }
-```
-
-Hidden form to submit on RISC completion, also in `views/loginRisc.ejs`:
-
-```
-    var lastwallRiscFinished = function()
-    {
-        document.forms['lw_finished_form'].submit();
-    }
-```
-
-```
-    <form id="lw_finished_form" name="lw_finished_form" action="/finishedRisc" method="post"></form>
 ```
