@@ -13,7 +13,7 @@ Integration with Lastwall RISC is a fairly straightforward process. The interact
 4. The user's browser should take this javascript URL and load it via asynchronous HTTPRequest (sample code supplied below - see `initLastwallRisc()`).
 5. When the script is completed and the risk score is evaluated, the client browser will trigger a finalization function call to `lastwallRiscFinished()`. You must define this function in the web page. This function should trigger a call back to your server, letting your server know that the RISC session has been completed (eg. using a hidden form submission - sample code supplied below).
 6. Your server checks with Lastwall to see the results of the session via a GET request to `https://risc.lastwall.com/api/sessions`. The response from Lastwall will include a percentage-based risk score, a risk status value (one of 'Risky', 'Authenticated', or 'Failed'), and a boolean value indicating whether the user was authenticated. You can use any of these three metrics to evaluate the risk and take appropriate action (eg. email to administrator, forced logout, limited login, honeypot site, etc).
-7. Lastly, you should update all of your page-access authentication checks to ensure that users have both logged in AND passed a RISC check (example below).
+7. Lastly, you should update all of your page-access authentication checks to ensure that users have both logged in AND passed a RISC check before allowing access (example below).
 
 
 ## Sample code

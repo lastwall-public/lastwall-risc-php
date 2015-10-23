@@ -3,7 +3,7 @@ Lastwall risk-based authentication module for PHP
 
 ## Overview
 
-Integration docs coming soon.
+This document describes the bare-bones API. For integration documentation, please read [this document](Integration.md).
 
 
 ## API Calls
