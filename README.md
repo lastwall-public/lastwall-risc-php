@@ -6,6 +6,6 @@ Lastwall risk-based authentication module for PHP
 
 This document will describe our PHP integration module.
 
-For integratrion documentation, please [click here](Integration.md).
+Before reading this, please read our general [integratrion documentation](Integration.md).
 
 For bare-bones API documentation, please [click here](API.md).
