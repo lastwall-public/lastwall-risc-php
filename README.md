@@ -26,7 +26,7 @@ Risc::Initialize($token, $secret);
 ## Verify API Key
 
 ```
-$result = Risc::verify(onOk, onError);
+$result = Risc::Verify();
 if ($result->OK())
 	echo "Verified!";
 else
