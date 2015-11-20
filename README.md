@@ -6,4 +6,4 @@ Lastwall risk-based authentication module for PHP
 
 Apologies, we are currently rewriting our PHP module. It will be available here soon.
 
-
+You may wish to read our [integration documentation](Integration.md).
