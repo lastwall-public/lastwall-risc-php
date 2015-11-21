@@ -19,13 +19,19 @@ class Risc
 	 * @param string $http_basic_auth Optional: Set true to switch from digest to HTTP basic authorization (not recommended)
 	 * @param string $api_url Optional: api url
 	 */
-	public static function Initialize($api_key, $api_secret, $http_basic_auth = true, $api_url = "https://risc.lastwall.com/api")
+	public static function Initialize($api_key, $api_secret, $http_basic_auth = true, $api_url = "https://risc.lastwall.com/")
 	{
 		self::$token = $api_key;
 		self::$secret = $api_secret;
 		self::$http_basic_auth = $http_basic_auth;
 		self::$api_url = $api_url;
 		self::$initialized = true;
+
+		function endsWith($haystack, $needle) {
+			return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== FALSE);
+		}
+		if (!endsWith($api_url, "/"))
+			self::$api_url = $api_url . "/";
 	}
 
 	/**
@@ -35,33 +41,64 @@ class Risc
 	 */
 	public static function Verify()
 	{
-		return self::CallAPI("GET", self::$api_url . "/verify");
+		return self::CallAPI("GET", self::$api_url . "verify");
 	}
 
 	/**
-	 * Create a new session for a given user.
+	 * Get the base URL for the RISC javascript. This url must be postfixed with a username.
 	 *
-	 * @param string $user_id    The user account ID
-	 *
-	 * @return RiscResponse the server response
+	 * @return string The base script URL.
 	 */
-	public static function CreateSession($user_id)
+	public static function GetScriptUrl()
 	{
-		$obj = (object) array("user_id" => $user_id);
-		return self::CallAPI("POST", self::$api_url . "/sessions", $obj);
+		return self::$api_url . 'risc/script/' . self::$token . '/';
 	}
 
 	/**
-	 * Check the status of an existing session.
+	 * Decrypts an encrypted RISC snapshot and returns the decrypted result.
 	 *
-	 * @param string $session_id The session ID to check
+	 * @param string $enc_snapshot    The encrypted snapshot object, which should be a JSON string returned from the Lastwall RISC server
+	 *
+	 * @return object The decrypted snapshot result. The return object should contain the following values:
+	 * string   snapshot_id
+	 * string   browser_id
+	 * date     date
+	 * number   score
+	 * string   status
+	 * boolean  passed
+	 * boolean  risky
+	 * boolean  failed
+	 */
+	public static function DecryptSnapshot($enc_snapshot)
+	{
+		$obj = json_decode($enc_snapshot);
+		$password = substr(self::$secret . self::$secret, $obj->ix, 32);
+		$key = pack('H*', $password);
+		$iv = pack('H*', $obj->iv);
+		$data = base64_decode($obj->data);
+		$decrypted = openssl_decrypt($data, "aes-128-cbc", $key, OPENSSL_RAW_DATA, $iv);
+		$ret = json_decode($decrypted);
+		$ret->passed = ($ret->status == 'passed');
+		$ret->risky = ($ret->status == 'risky');
+		$ret->failed = ($ret->status == 'failed');
+		return $ret;
+	}
+
+	/**
+	 * Call the Validate API to ensure the integrity of the encrypted RISC result.
+	 *
+	 * @param object $snapshot    The snapshot object, as decrypted by the DecryptSnapshot() function
 	 *
 	 * @return RiscResponse the server response
 	 */
-	public static function GetSession($session_id)
+	public static function ValidateSnapshot($snapshot)
 	{
-		$obj = (object) array("session_id" => $session_id);
-		return self::CallAPI("GET", self::$api_url . "/sessions", $obj);
+		$obj = (object) array("snapshot_id" => $snapshot->snapshot_id,
+			"browser_id" => $snapshot->browser_id,
+			"date" => $snapshot->date,
+			"score" => $snapshot->score,
+			"status" => $snapshot->status);
+		return self::CallAPI("GET", self::$api_url . "api/validate", $obj);
 	}
 
 
