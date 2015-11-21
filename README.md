@@ -40,11 +40,12 @@ else
 
 ## Get URL for RISC Script
 
-Our javascript requires both a public API token and a user ID in the URL. The specific format is `https://risc.lastwall.com/risc/script/API_TOKEN/USER_ID`. To construct this URL, we provide a convenient shortcut function in our PHP module. You can do it like this:
+Our javascript requires both a public API token and a user ID in the URL. The specific format is `https://risc.lastwall.com/risc/script/API_TOKEN/USER_ID`. The username is typically available on the client side before creating a RISC snapshot. To construct the URL, you can use our convenience function within the client-side javascript like this:
 
 ```
 var script_url = '<?php echo Risc::GetScriptUrl(); ?>' + encodeURIComponent(username);
 // script_url looks like this: https://risc.lastwall.com/risc/script/API_TOKEN/USER_ID
+loadRiscScript(script_url);
 ```
 
 NOTE: when you append the username to the URL, don't forget to URI-encode it!
