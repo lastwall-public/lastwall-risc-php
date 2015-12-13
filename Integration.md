@@ -23,6 +23,7 @@ The RISC snapshot result blob, when decryped, will result in a JSON-encoded stri
 
 - **snapshot_id** - The unique snapshot ID
 - **browser_id** - The unique ID for the user's web browser, as identified by the RISC server
+- **user_id** - The ID of the user that requested the snapshot
 - **date** - The exact time of the snapshot (Javascript-formatted ISO 8601 date string)
 - **score** - The resulting RISC score (percentage from 0-100 - lower is safer)
 - **status** - The snapshot status (string valued either 'passed', 'risky', or 'failed')
