@@ -203,9 +203,9 @@ var decryptSnapshot = function(api_secret, riscstring)
 ```
 var verifySnapshot = function(snapshot)
 {
-    // Make sure the snapshot date is accurate within 10 minutes
-    var datediff = Math.abs(new Date(snapshot.date) - new Date()) / 1000;
-    if (datediff > 600)
+    // Make sure the snapshot date is within 10 minutes of the current time
+    var datediff = Math.abs(new Date(snapshot.date) - new Date()) / 1000;   // difference in milliseconds - div by 1000 to convert to seconds
+    if (datediff > 600)  // 600 seconds = 10 minutes
     {
         console.log('Result is too far out of date.');
         return null;

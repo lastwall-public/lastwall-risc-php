@@ -102,6 +102,22 @@ class Risc
 	}
 
 
+	/**
+	 * Call the Authenticate API to authenticate a user's next RISC snapshot on a specific browser
+	 *
+	 * @param string $user_id     The user identifier
+	 * @param string $browser_id  The browser ID, as retrieved from a previous snapshot result
+	 *
+	 * @return RiscResponse the server response
+	 */
+	public static function AuthenticateUser($user_id, $browser_id)
+	{
+		$obj = (object) array("user_id" => $user_id,
+			"browser_id" => $browser_id);
+		return self::CallAPI("GET", self::$api_url . "api/authenticate", $obj);
+	}
+
+
 	private static function CallAPI($method, $url, $data = false)
 	{
 		$curl = curl_init();
