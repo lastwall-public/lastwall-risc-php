@@ -110,11 +110,11 @@ class Risc
 	 *
 	 * @return RiscResponse the server response
 	 */
-	public static function AuthenticateUser($user_id, $browser_id)
+	public static function PreAuthenticateUser($user_id, $browser_id)
 	{
 		$obj = (object) array("user_id" => $user_id,
 			"browser_id" => $browser_id);
-		return self::CallAPI("GET", self::$api_url . "api/authenticate", $obj);
+		return self::CallAPI("GET", self::$api_url . "api/preauth", $obj);
 	}
 
 
