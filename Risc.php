@@ -103,7 +103,7 @@ class Risc
 
 
 	/**
-	 * Call the Authenticate API to authenticate a user's next RISC snapshot on a specific browser
+	 * Call the Pre-authenticate API to authenticate a user's next RISC snapshot on a specific browser
 	 *
 	 * @param string $user_id     The user identifier
 	 * @param string $browser_id  The browser ID, as retrieved from a previous snapshot result
@@ -114,7 +114,25 @@ class Risc
 	{
 		$obj = (object) array("user_id" => $user_id,
 			"browser_id" => $browser_id);
-		return self::CallAPI("GET", self::$api_url . "api/preauth", $obj);
+		return self::CallAPI("POST", self::$api_url . "api/preauth", $obj);
+	}
+
+
+	/**
+	 * Call the Email-authenticate API to authenticate a user's next RISC snapshot on a specific browser
+	 *
+	 * @param string $user_id     The user identifier
+	 * @param string $browser_id  The browser ID, as retrieved from a previous snapshot result
+	 * @param string $email       (optional) The user's email address, or an empty string
+	 *
+	 * @return RiscResponse the server response
+	 */
+	public static function EmailAuthenticateUser($user_id, $browser_id, $email)
+	{
+		$obj = (object) array("user_id" => $user_id,
+			"browser_id" => $browser_id,
+			"email" => $email);
+		return self::CallAPI("POST", self::$api_url . "api/save_email", $obj);
 	}
 
 

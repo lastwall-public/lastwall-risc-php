@@ -120,3 +120,18 @@ if ($result->OK())
 else
     echo 'Error pre-authing user: ' . $result->Error();
 ```
+
+
+## Email-based Second Factor Authentication (optional)
+
+The `save_email` API call can be used to force an email-based second factor authentication when a user has a high RISC score on a particular browser. The goal is to verify a user's identity by ensuring he has access to the specified email account. An email will be sent to the specified address with a one-time unlock link. If the user logs into his email and clicks the unlock link, his RISC score will be set back to 0% the next time he does a RISC snapshot from the specified browser. This API call is typically used after a risky or failed RISC snapshot, in order to allow the user a chance to recover access from that browser.
+
+You will need a valid user ID and browser ID to call this API function. The browser ID will be contained in the most recent RISC snapshot result. You may optionally specify the email address to use. If you don't specify one, we will try to use the one stored in the RISC user account (if there is one).
+
+```
+$result = Risc::EmailAuthenticateUser($snapshot->user_id, $snapshot->browser_id, $user_email);
+if ($result->OK())
+    echo 'An authentication email has been sent. The user should be instructed to check his email to recover access.';
+else
+    echo 'Error email-authing user: ' . $result->Error();
+```
